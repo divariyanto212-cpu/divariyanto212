@@ -193,8 +193,9 @@ app.get("/api/history", (req, res) => {
 });
 
 configuration.setMaxListeners(0);
-configuration.on("open", async () => {
-  log("cyan", "Serial port terbuka. Memulai pembacaan kWh...");
+
+// 1. Bungkus proses perulangan ke dalam fungsi mandiri agar tidak memblokir server
+async function jalankanPembacaanMeteran() {
   while (true) {
     try {
       for (let i = 1; i <= 21; i++) {
@@ -204,11 +205,18 @@ configuration.on("open", async () => {
       log("yellow", "Satu siklus pembacaan selesai, menunggu siklus berikutnya...");
       await delay(5000);
     } catch (cycleError) {
-      log("red", `Error siklus utama: ${cycleError.message}`);
+      log("red", "Error siklus utama: " + cycleError.message);
       await delay(5000);
     }
   }
+}
+
+// 2. Jalankan fungsi di atas saat serial port berhasil terbuka
+configuration.on("open", async () => {
+  log("cyan", "Serial port terbuka. Memulai pembacaan kwh...");
+  jalankanPembacaanMeteran(); // Dipanggil tanpa kata 'await' agar berjalan di latar belakang
 });
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
