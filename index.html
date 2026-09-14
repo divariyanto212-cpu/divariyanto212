@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring kWh Powermeter</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <div class="header-panel">
+        <div id="realtime-clock" class="clock-text">Memuat Waktu...</div>
+        <div class="history-controls">
+            <label for="tanggal-input">Historical:</label>
+            <input type="date" id="tanggal-input">
+            <button class="btn-live" onclick="location.reload()">Kembali ke Real-Time</button>
+        </div>
+    </div>
+
+    <h1>Real-Time Monitoring kWh Powermeter</h1>
+
+    <div class="grid" id="meter-container">
+        <!-- Kotak meteran real-time 1 - 21 di-generate otomatis via JS -->
+    </div>
+
+    <!-- Modal Pop-up Rekap Histori Berbentuk Tabel Ke Samping -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeHistoryModal()">&times;</span>
+            <h2 id="modal-title">Rekap Histori kWh</h2>
+
+            <!-- Kontainer responsif untuk scroll horizontal tabel -->
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr id="table-header-row">
+                            <th>Parameter / ID</th>
+                            <!-- Kolom ID 1 sampai 21 akan di-generate via JavaScript -->
+                        </tr>
+                    </thead>
+                    <tbody id="modal-table-body">
+                        <!-- Baris Nama, Waktu, dan kWh di-insert di sini -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="down">
+        <h1>ENGINEERING TEAM</h1>
+    </div>
+
+    <div style="text-align: center; margin-top: -70px; margin-bottom: 20px;">
+        <img src="Logokrymd.png.png" alt="Logo"
+            style="max-width: 240px; height: auto; display: block; margin: 0 auto; border-radius: 4px;" id="my-logo">
+    </div>
+
+    <!-- Pemuatan Library Socket.io & Skrip Logika -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // 1. Jam Real-Time di Header
+        function updateClock() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const clockEl = document.getElementById("realtime-clock");
+            if (clockEl) {
+                clockEl.innerText = now.toLocaleDateString('id-ID', options);
+            }
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // 2. Inisialisasi Dashboard Real-time (ID 1 - 21)
+        const socket = io();
+        const container = document.getElementById("meter-container");
+
+        for (let i = 1; i <= 21; i++) {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.id = `meter-${i}`;
+            card.innerHTML = `<h3>ID ${i}: Memuat...</h3><p class="success">- kWh</p>`;
+            container.appendChild(card);
+        }
+
+        // Tangkap Update Real-Time dari Server WebSocket
+        socket.on("update-meter", (data) => {
+            const card = document.getElementById(`meter-${data.id}`);
+            if (card) {
+                const statusClass = data.status === "success" ? "success" : "error";
+                card.innerHTML = `
+                    <h3>ID ${data.id} - ${data.name}</h3>
+                    <p class="${statusClass}">${data.kwh} ${data.status === 'success' ? 'kWh' : ''}</p>
+                `;
+            }
+        });
+
+        // 3. Ambil Data Histori dan Tampilkan Berbentuk Tabel Horizontal
+        async function ambilDataBerdasarkanTanggal(tanggalPilihan) {
+            try {
+                const response = await fetch(`/api/history?date=${tanggalPilihan}`);
+                const dataHistori = await response.json();
+
+                const tableHeaderRow = document.getElementById("table-header-row");
+                const tableBody = document.getElementById("modal-table-body");
+                const modalTitle = document.getElementById("modal-title");
+
+                modalTitle.innerText = `Rekap Histori - Tanggal: ${tanggalPilihan}`;
+                tableBody.innerHTML = "";
+
+                // Atur Header Tabel (Judul Kolom)
+                tableHeaderRow.innerHTML = `
+            <th>ID</th>
+            <th>Nama Area / Meter Pemakai</th>
+            <th>Waktu Catat</th>
+            <th>Total Konsumsi (kWh)</th>
+        `;
+
+                if (dataHistori.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #f44336; padding: 20px; background: #fff;">Tidak ada data histori terekam untuk tanggal ini.</td></tr>`;
+                    document.getElementById("historyModal").style.display = "block";
+                    return;
+                }
+
+                // Petakan data ke objek berdasarkan id_meter
+                const latestDataMap = {};
+                dataHistori.forEach(item => {
+                    latestDataMap[item.id_meter] = item;
+                });
+
+                // Loop berurutan ke bawah dari ID 1 sampai 21
+                let gabunganBaris = "";
+                for (let i = 1; i <= 21; i++) {
+                    const record = latestDataMap[i];
+
+                    if (record) {
+                        gabunganBaris += `
+                    <tr>
+                        <td><strong>ID ${i}</strong></td>
+                        <td style="text-align: left;">${record.nama_meter || '-'}</td>
+                        <td class="history-time">${record.waktu}</td>
+                        <td class="txt-kwh" style="text-align: right; padding-right: 20px;">${record.kwh} kWh</td>
+                    </tr>
+                `;
+                    } else {
+                        gabunganBaris += `
+                    <tr>
+                        <td><strong>ID ${i}</strong></td>
+                        <td style="text-align: left; color: #999; font-style: italic;">Tidak ada data daerah ini</td>
+                        <td class="txt-nodata">-</td>
+                        <td class="txt-nodata" style="text-align: right; padding-right: 20px;">-</td>
+                    </tr>
+                `;
+                    }
+                }
+
+                // Masukkan semua baris ID ke dalam body tabel
+                tableBody.innerHTML = gabunganBaris;
+
+                // Tampilkan Modal Pop-up
+                document.getElementById("historyModal").style.display = "block";
+            } catch (err) {
+                console.error("Gagal memuat histori:", err);
+            }
+        }
+
+        // Tutup Modal Pop-up
+        function closeHistoryModal() {
+            document.getElementById("historyModal").style.display = "none";
+            document.getElementById("tanggal-input").value = "";
+        }
+
+        // Jalankan pencarian otomatis ketika kalender diubah
+        const inputKalender = document.getElementById('tanggal-input');
+        if (inputKalender) {
+            inputKalender.addEventListener('change', (e) => {
+                const tanggalPilihan = e.target.value;
+                if (tanggalPilihan) {
+                    ambilDataBerdasarkanTanggal(tanggalPilihan);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

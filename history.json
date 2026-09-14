@@ -1,0 +1,331 @@
+[
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 2,
+    "nama_meter": "Kompressor",
+    "kwh": "894236.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 3,
+    "nama_meter": "LVMDB",
+    "kwh": "7380530.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 5,
+    "nama_meter": "DB pump wtp",
+    "kwh": "102089.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 6,
+    "nama_meter": "DB cooling tower",
+    "kwh": "115859.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 10,
+    "nama_meter": "Lighting Cold room",
+    "kwh": "20931.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 11,
+    "nama_meter": "DB Cold room",
+    "kwh": "486609.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 12,
+    "nama_meter": "Db Sugar Area",
+    "kwh": "8885.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 14,
+    "nama_meter": "DB Production 2st Floor",
+    "kwh": "722084.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 15,
+    "nama_meter": "DB Filling Area",
+    "kwh": "107178.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 16,
+    "nama_meter": "DB Horizontal",
+    "kwh": "22748.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 18,
+    "nama_meter": "DB Conveyor",
+    "kwh": "423411.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 19,
+    "nama_meter": "DB Production 3rd Floor",
+    "kwh": "90141.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 20,
+    "nama_meter": "Lighting 3rd floor",
+    "kwh": "31306.00"
+  },
+  {
+    "tanggal": "2026-09-10",
+    "waktu": "08:00:00",
+    "id_meter": 21,
+    "nama_meter": "Tarami",
+    "kwh": "13763.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 2,
+    "nama_meter": "Kompressor",
+    "kwh": "895239.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 3,
+    "nama_meter": "LVMDB",
+    "kwh": "7386415.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 5,
+    "nama_meter": "DB pump wtp",
+    "kwh": "102333.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 6,
+    "nama_meter": "DB cooling tower",
+    "kwh": "116241.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 7,
+    "nama_meter": "DB Production 1st Floor",
+    "kwh": "267419.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 8,
+    "nama_meter": "DB Packaging",
+    "kwh": "13694.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 10,
+    "nama_meter": "Lighting Cold room",
+    "kwh": "20989.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 11,
+    "nama_meter": "DB Cold room",
+    "kwh": "486934.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 12,
+    "nama_meter": "Db Sugar Area",
+    "kwh": "8896.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 14,
+    "nama_meter": "DB Production 2st Floor",
+    "kwh": "723178.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 15,
+    "nama_meter": "DB Filling Area",
+    "kwh": "107323.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 16,
+    "nama_meter": "DB Horizontal",
+    "kwh": "22801.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 18,
+    "nama_meter": "DB Conveyor",
+    "kwh": "423788.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 19,
+    "nama_meter": "DB Production 3rd Floor",
+    "kwh": "90214.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 20,
+    "nama_meter": "Lighting 3rd floor",
+    "kwh": "31322.00"
+  },
+  {
+    "tanggal": "2026-09-11",
+    "waktu": "08:00:00",
+    "id_meter": 21,
+    "nama_meter": "Tarami",
+    "kwh": "13911.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 2,
+    "nama_meter": "Kompressor",
+    "kwh": "896330.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 3,
+    "nama_meter": "LVMDB",
+    "kwh": "7393230.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 5,
+    "nama_meter": "DB pump wtp",
+    "kwh": "102636.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 6,
+    "nama_meter": "DB cooling tower",
+    "kwh": "116635.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 7,
+    "nama_meter": "DB Production 1st Floor",
+    "kwh": "267792.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 8,
+    "nama_meter": "DB Packaging",
+    "kwh": "13701.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 10,
+    "nama_meter": "Lighting Cold room",
+    "kwh": "21111.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 11,
+    "nama_meter": "DB Cold room",
+    "kwh": "487461.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 12,
+    "nama_meter": "Db Sugar Area",
+    "kwh": "8905.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 13,
+    "nama_meter": "Warehouse",
+    "kwh": "212487.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 14,
+    "nama_meter": "DB Production 2st Floor",
+    "kwh": "724159.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 15,
+    "nama_meter": "DB Filling Area",
+    "kwh": "107438.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 16,
+    "nama_meter": "DB Horizontal",
+    "kwh": "22914.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 18,
+    "nama_meter": "DB Conveyor",
+    "kwh": "424126.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 19,
+    "nama_meter": "DB Production 3rd Floor",
+    "kwh": "90314.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 20,
+    "nama_meter": "Lighting 3rd floor",
+    "kwh": "31341.00"
+  },
+  {
+    "tanggal": "2026-09-13",
+    "waktu": "08:00:00",
+    "id_meter": 21,
+    "nama_meter": "Tarami",
+    "kwh": "13936.00"
+  }
+]

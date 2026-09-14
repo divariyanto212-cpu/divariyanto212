@@ -1,0 +1,219 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #ebe8e8;
+    color: #fff;
+    padding: 20px;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    color: #2267a7;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.header-panel {
+    background: #2267a7;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(2, 2, 2, 0.3);
+}
+
+.clock-text {
+    color: #fff5f5;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.history-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.history-controls label {
+    font-size: 14px;
+    color: #f3f3f3;
+    font-weight: bold;
+}
+
+.history-controls input[type="date"] {
+    background: none;
+    border: 1px solid #fdfcfc;
+    color: #ffffff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.history-controls input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Membuat ikon kalender berwarna putih agar kontras */
+}
+
+.btn-live {
+    background: none;
+    color: #ffffff;
+    border: 1px solid #fdfcfc;
+    padding: 7px 14px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-live:hover {
+    background: #3195c4;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: #2267a7;
+    border: 1px solid #333;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(8, 8, 8, 0.3);
+}
+
+.card h3 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: #faf4f4;
+}
+
+.card p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.success {
+    color: #acf307;
+}
+
+.error {
+    color: #f44336;
+}
+
+.down h1 {
+    font-size: 18px;
+    color: #2267a7;
+    margin-top: 40px;
+}
+
+/* ========================================== */
+/* STYLING POP-UP MODAL TABEL HORIZONTAL     */
+/* ========================================== */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    background-color: #d3cfcf;
+    margin: 2% auto; /* Jarak atas sedikit dikecilkan agar muat di layar */
+    padding: 20px;
+    border: 1px solid #444;
+    width: 65%; /* Lebar proporsional untuk 4 kolom */
+    max-width: 850px; 
+    border-radius: 8px;
+    color: #080808;
+    box-shadow: 0 5px 15px rgba(15, 15, 15, 0.5);
+}
+
+.close-btn {
+    color: #ff0000;
+    float: right;
+    font-size: 29px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #a70000;
+}
+
+#modal-title {
+    color: #47494b;
+    margin-top: 0;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+/* Wadah Tabel dengan Scroll Vertikal jika layar pendek */
+.table-responsive {
+    width: 100%;
+    max-height: 500px; /* Batasi tinggi pop-up agar tidak tenggelam keluar layar */
+    overflow-y: auto; 
+    border: 1px solid #2267a7;
+    border-radius: 4px;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+}
+
+.history-table th {
+    background-color: #2267a7;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    position: sticky;
+    top: 0; /* Menahan judul kolom agar tidak ikut tergulung saat di-scroll */
+    z-index: 3;
+}
+
+.history-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    color: #333333 !important;
+    font-size: 13px;
+    background-color: #ffffff;
+}
+
+/* Efek baris abu-abu selang-seling */
+.history-table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+.history-table tr:hover td {
+    background-color: #e9f2fb; /* Efek highlight saat baris ditunjuk mouse */
+}
+
+/* Penataan Warna Teks */
+.txt-kwh {
+    color: #2267a7 !important; /* Warna biru senada tema dashboard */
+    font-weight: bold !important;
+    font-size: 14px !important;
+}
+
+.history-time {
+    color: #fd1313 !important; /* Waktu berwarna merah sesuai coding lama */
+    font-size: 12px;
+}
+
+.txt-nodata {
+    color: #999999 !important;
+    font-style: italic;
+}
