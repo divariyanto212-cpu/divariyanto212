@@ -2,28 +2,40 @@ const { Server } = require("socket.io");
 const express = require("express");
 const http = require("http");
 const moment = require("moment");
-const modbus = require("jsmodbus");
-const { SerialPort } = require("serialport");
 const fs = require("fs");
 const path = require("path");
 const cron = require("node-cron");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
-
-// --- 1. JALUR UTAMA (EXPRESS) LANGSUNG MENYALA ---
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+const io = new Server(server, {
+  cors: { origin: "*" }
 });
 
+// --- 1. ASET STATIK (CSS & JS CLIENT) DIPINDAH KE ATAS SINI ---
+app.use(express.static(path.join(__dirname, "public")));
+
+// --- 2. JALUR UTAMA (EXPRESS) ---
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// --- 3. MENERIMA DATA DARI LAPTOP/PC LOKAL VIA SOCKET.IO ---
+io.on("connection", (socket) => {
+  console.log("Client terhubung:", socket.id);
+
+  // Menerima data dari script di laptop/PC lokal
+  socket.on("kirim_data_kwh", (data) => {
+    // Teruskan ke tampilan browser yang sedang buka website
+    io.emit("update_tampilan", data);
+  });
+});
+
+// --- 4. LISTEN SERVER HARUS PALING BAWAH ---
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Web server berjalan di port: ${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Web server berjalan di port: ${PORT}`);
 });
-
-app.use(express.static("public"));
-
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 const log = (color, message) => {
