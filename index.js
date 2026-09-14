@@ -12,7 +12,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// TAMBAHKAN RUTE UTAMA DAN PORT DI SINI (MAJU KE ATAS)
+// --- 1. JALUR UTAMA (EXPRESS) LANGSUNG MENYALA ---
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
@@ -40,46 +40,19 @@ const log = (color, message) => {
   console.log(`${timeFormatted} ${colorCode}${message}\x1b[0m`);
 };
 
-const configuration = new SerialPort({
-  path: "COM3",
-  baudRate: 9600,
-  parity: "none",
-  stopBits: 1,
-  dataBits: 8,
-});
-
-configuration.on('error', function(err) {
-  log("red", "Hubungan SerialPort Gagal/Tidak Ada: " + err.message);
-});
-
+// Pengaman tambahan global untuk server
 process.on('uncaughtException', (err) => {
-  console.error('Ada error tidak tertangkap, server tetap aman:', err);
+  log("red", "Ada error tidak tertangkap, server dibypass aman: " + err.message);
 });
 
-
-const nrgs = [1, 9];
-const cvms = [2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+const nrgs =;
+const cvms =;
 const areas = {
-  1: "Workshop", 
-  2: "Kompressor", 
-  3: "LVMDB", 
-  4: "Genset-on trigger",
-  5: "DB pump wtp", 
-  6: "DB cooling tower", 
-  7: "DB Production 1st Floor", 
-  8: "DB Packaging",
-  9: "Lighting 1st Floor", 
-  10: "Lighting Cold room", 
-  11: "DB Cold room", 
-  12: "Db Sugar Area",
-  13: "Warehouse", 
-  14: "DB Production 2st Floor", 
-  15: "DB Filling Area", 
-  16: "DB Horizontal",
-  17: "Lighting 2nd Floor", 
-  18: "DB Conveyor", 
-  19: "DB Production 3rd Floor", 
-  20: "Lighting 3rd floor", 
+  1: "Workshop", 2: "Kompressor", 3: "LVMDB", 4: "Genset-on trigger",
+  5: "DB pump wtp", 6: "DB cooling tower", 7: "DB Production 1st Floor", 8: "DB Packaging",
+  9: "Lighting 1st Floor", 10: "Lighting Cold room", 11: "DB Cold room", 12: "Db Sugar Area",
+  13: "Warehouse", 14: "DB Production 2st Floor", 15: "DB Filling Area", 16: "DB Horizontal",
+  17: "Lighting 2nd Floor", 18: "DB Conveyor", 19: "DB Production 3rd Floor", 20: "Lighting 3rd floor", 
   21: "Tarami"
 };
 
@@ -94,13 +67,11 @@ const combineDWord = (highWord, lowWord) => {
   return highWord * 0x10000 + lowWord;
 };
 
-// Objek untuk menyimpan cache nilai kWh terakhir dari setiap meter
 const latestMeterValues = {};
 
 const simpanHistoriData = (slaveId, kwhValue, namaMeter) => {
     const tanggalHariIni = moment().format("YYYY-MM-DD");
     const waktuSekarang = moment().format("HH:mm:ss");
-    
     const fileHistori = path.join(__dirname, "history.json");
     let dataHistori = [];
 
@@ -114,14 +85,14 @@ const simpanHistoriData = (slaveId, kwhValue, namaMeter) => {
     }
 
     dataHistori.push({
-        tanggal: tanggalHariIni,
-        waktu: waktuSekarang,
-        id_meter: slaveId,
-        nama_meter: namaMeter,
-        kwh: kwhValue
+        tanggal: tanggalHariIni, waktu: waktuSekarang, id_meter: slaveId, nama_meter: namaMeter, kwh: kwhValue
     });
 
-    fs.writeFileSync(fileHistori, JSON.stringify(dataHistori, null, 2));
+    try {
+        fs.writeFileSync(fileHistori, JSON.stringify(dataHistori, null, 2));
+    } catch(e) {
+        log("red", "Gagal menulis file local storage di cloud");
+    }
 };
 
 const readRegistersWithRetry = async (client, register, numberOfRegisters, maxRetries = 3) => {
@@ -139,46 +110,6 @@ const readRegistersWithRetry = async (client, register, numberOfRegisters, maxRe
   throw new Error(`Gagal membaca register: ${lastError.message}`);
 };
 
-const getPowerMeterKwh = async (slaveId) => {
-  if (!areas[slaveId]) return;
-  const deviceType = cvms.includes(slaveId) ? 'cvm' : nrgs.includes(slaveId) ? 'nrg' : null;
-  if (!deviceType) return;
-  
-  const config = registerConfigs[deviceType];
-  const client = new modbus.client.RTU(configuration, slaveId, 3000);
-  
-  try {
-    const dataKwh = await readRegistersWithRetry(client, config.registerKwh, 2);
-    const kwh = combineDWord(dataKwh.response.body.values[0], dataKwh.response.body.values[1]) / config.scaleKwh;
-    const kwhFormatted = kwh.toFixed(2);
-    
-    // Simpan ke cache memori untuk jadwal jam 8
-    latestMeterValues[slaveId] = {
-        kwh: kwhFormatted,
-        name: areas[slaveId]
-    };
-
-    log("green", `[${areas[slaveId]}] kWh Berhasil: ${kwhFormatted} kWh`);
-    io.emit("update-meter", { id: slaveId, name: areas[slaveId], kwh: kwhFormatted, status: "success" });
-  } catch (error) {
-    log("red", `[${areas[slaveId]}] Gagal membaca kWh: ${error.message}`);
-    io.emit("update-meter", { id: slaveId, name: areas[slaveId], kwh: "Error", status: "error" });
-  }
-};
-
-// =======================================================
-// CRON JOB: SIMPAN OTOMATIS SETIAP HARI JAM 08:00 PAGI
-// =======================================================
-cron.schedule("0 8 * * *", () => {
-    log("yellow", "Menjalankan penjadwalan simpan histori harian jam 08:00...");
-    for (let i = 1; i <= 21; i++) {
-        if (latestMeterValues[i]) {
-            simpanHistoriData(i, latestMeterValues[i].kwh, latestMeterValues[i].name);
-        }
-    }
-    log("yellow", "Histori harian jam 08:00 berhasil direkam ke file.");
-});
-
 // API Endpoint untuk mengambil data histori berdasarkan tanggal
 app.get("/api/history", (req, res) => {
     const fileHistori = path.join(__dirname, "history.json");
@@ -187,44 +118,98 @@ app.get("/api/history", (req, res) => {
     if (!fs.existsSync(fileHistori)) {
         return res.json([]);
     }
-
     try {
         const fileData = fs.readFileSync(fileHistori, "utf8");
         let dataHistori = JSON.parse(fileData);
-
         if (tanggalFilter) {
             dataHistori = dataHistori.filter(item => item.tanggal === tanggalFilter);
         }
-
         res.json(dataHistori);
     } catch (err) {
         res.json([]);
     }
 });
 
-configuration.setMaxListeners(0);
-
-// 1. Bungkus proses perulangan ke dalam fungsi mandiri agar tidak memblokir server
-async function jalankanPembacaanMeteran() {
-  while (true) {
-    try {
-      for (let i = 1; i <= 21; i++) {
-        await getPowerMeterKwh(i);
-        await delay(1500);
-      }
-      log("yellow", "Satu siklus pembacaan selesai, menunggu siklus berikutnya...");
-      await delay(5000);
-    } catch (cycleError) {
-      log("red", "Error siklus utama: " + cycleError.message);
-      await delay(5000);
+// CRON JOB: SIMPAN OTOMATIS SETIAP HARI JAM 08:00 PAGI
+cron.schedule("0 8 * * *", () => {
+    log("yellow", "Menjalankan penjadwalan simpan histori harian jam 08:00...");
+    for (let i = 1; i <= 21; i++) {
+        if (latestMeterValues[i]) {
+            simpanHistoriData(i, latestMeterValues[i].kwh, latestMeterValues[i].name);
+        }
     }
-  }
-}
-
-// 2. Jalankan fungsi di atas saat serial port berhasil terbuka
-configuration.on("open", async () => {
-  log("cyan", "Serial port terbuka. Memulai pembacaan kwh...");
-  jalankanPembacaanMeteran(); // Dipanggil tanpa kata 'await' agar berjalan di latar belakang
+    log("yellow", "Histori harian jam 08:00 berhasil direkam.");
 });
 
 
+// --- 2. CEK DETEKSI HOSTING (BYPASS SERIAL PORT DI INTERNET) ---
+const isCloudHosting = process.env.PORT ? true : false;
+
+if (isCloudHosting) {
+    log("cyan", "Menyala di Cloud Hosting (Railway). Fungsi hardware SerialPort COM3 aman di-bypass.");
+    
+    // Server simulasi data kosong untuk dashboard web di cloud agar tidak beku
+    io.on("connection", (socket) => {
+        log("blue", "Klien terhubung ke web cloud.");
+        for (let i = 1; i <= 21; i++) {
+            socket.emit("update-meter", { id: i, name: areas[i], kwh: "Offline (Cloud Mode)", status: "error" });
+        }
+    });
+
+} else {
+    // --- MODE LOKAL LAPTOP (SERIAL PORT & MODBUS AKTIF NORMAL) ---
+    log("cyan", "Menyala di komputer lokal. Mengaktifkan SerialPort COM3...");
+
+    const configuration = new SerialPort({
+      path: "COM3", baudRate: 9600, parity: "none", stopBits: 1, dataBits: 8,
+    });
+
+    configuration.on('error', function(err) {
+      log("red", "Hubungan SerialPort Lokal Gagal: " + err.message);
+    });
+
+    const getPowerMeterKwh = async (slaveId) => {
+      if (!areas[slaveId]) return;
+      const deviceType = cvms.includes(slaveId) ? 'cvm' : nrgs.includes(slaveId) ? 'nrg' : null;
+      if (!deviceType) return;
+      
+      const config = registerConfigs[deviceType];
+      const client = new modbus.client.RTU(configuration, slaveId, 3000);
+      
+      try {
+        const dataKwh = await readRegistersWithRetry(client, config.registerKwh, 2);
+        const kwh = combineDWord(dataKwh.response.body.values[0], dataKwh.response.body.values[1]) / config.scaleKwh;
+        const kwhFormatted = kwh.toFixed(2);
+        
+        latestMeterValues[slaveId] = { kwh: kwhFormatted, name: areas[slaveId] };
+        log("green", `[${areas[slaveId]}] kWh Berhasil: ${kwhFormatted} kWh`);
+        io.emit("update-meter", { id: slaveId, name: areas[slaveId], kwh: kwhFormatted, status: "success" });
+      } catch (error) {
+        log("red", `[${areas[slaveId]}] Gagal membaca kWh: ${error.message}`);
+        io.emit("update-meter", { id: slaveId, name: areas[slaveId], kwh: "Error", status: "error" });
+      }
+    };
+
+    configuration.setMaxListeners(0);
+
+    async function jalankanPembacaanMeteran() {
+      while (true) {
+        try {
+          for (let i = 1; i <= 21; i++) {
+            await getPowerMeterKwh(i);
+            await delay(1500);
+          }
+          log("yellow", "Satu siklus pembacaan selesai, menunggu siklus berikutnya...");
+          await delay(5000);
+        } catch (cycleError) {
+          log("red", "Error siklus utama: " + cycleError.message);
+          await delay(5000);
+        }
+      }
+    }
+
+    configuration.on("open", async () => {
+      log("cyan", "Serial port terbuka. Memulai pembacaan kwh...");
+      jalankanPembacaanMeteran();
+    });
+}
