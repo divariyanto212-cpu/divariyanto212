@@ -45,8 +45,8 @@ process.on('uncaughtException', (err) => {
   log("red", "Ada error tidak tertangkap, server dibypass aman: " + err.message);
 });
 
-const nrgs =;
-const cvms =;
+const nrgs =[1, 9];
+const cvms =[2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const areas = {
   1: "Workshop", 2: "Kompressor", 3: "LVMDB", 4: "Genset-on trigger",
   5: "DB pump wtp", 6: "DB cooling tower", 7: "DB Production 1st Floor", 8: "DB Packaging",
