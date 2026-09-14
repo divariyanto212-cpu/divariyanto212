@@ -14,7 +14,7 @@ const io = new Server(server);
 
 // --- 1. JALUR UTAMA (EXPRESS) LANGSUNG MENYALA ---
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
@@ -42,7 +42,7 @@ const log = (color, message) => {
 
 // Pengaman tambahan global untuk server
 process.on('uncaughtException', (err) => {
-  log("red", "Ada error tidak tertangkap, server dibypass aman: " + err.message);
+  console.error('Ada error tidak tertangkap, server tetap aman:', err.message);
 });
 
 const nrgs =[1, 9];
@@ -91,7 +91,7 @@ const simpanHistoriData = (slaveId, kwhValue, namaMeter) => {
     try {
         fs.writeFileSync(fileHistori, JSON.stringify(dataHistori, null, 2));
     } catch(e) {
-        log("red", "Gagal menulis file local storage di cloud");
+        console.error("Gagal menulis file local storage di cloud");
     }
 };
 
@@ -141,18 +141,16 @@ cron.schedule("0 8 * * *", () => {
     log("yellow", "Histori harian jam 08:00 berhasil direkam.");
 });
 
-
 // --- 2. CEK DETEKSI HOSTING (BYPASS SERIAL PORT DI INTERNET) ---
 const isCloudHosting = process.env.PORT ? true : false;
 
 if (isCloudHosting) {
     log("cyan", "Menyala di Cloud Hosting (Railway). Fungsi hardware SerialPort COM3 aman di-bypass.");
     
-    // Server simulasi data kosong untuk dashboard web di cloud agar tidak beku
     io.on("connection", (socket) => {
         log("blue", "Klien terhubung ke web cloud.");
         for (let i = 1; i <= 21; i++) {
-            socket.emit("update-meter", { id: i, name: areas[i], kwh: "Offline (Cloud Mode)", status: "error" });
+            socket.emit("update-meter", { id: i, name: areas[i], kwh: "0.00", status: "offline" });
         }
     });
 
