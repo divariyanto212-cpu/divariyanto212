@@ -12,6 +12,16 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// TAMBAHKAN RUTE UTAMA DAN PORT DI SINI (MAJU KE ATAS)
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Web server berjalan di port: ${PORT}`);
+});
+
 app.use(express.static("public"));
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
