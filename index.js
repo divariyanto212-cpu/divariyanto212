@@ -228,11 +228,3 @@ configuration.on("open", async () => {
 });
 
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    log("cyan", `Web server berjalan di port: ${PORT}`);
-});
