@@ -12,17 +12,26 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// --- 1. ASET STATIK (CSS & JS CLIENT) DIPINDAH KE ATAS SINI ---
+// 1. Jalur folder aset (CSS/JS)
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- 2. JALUR UTAMA (EXPRESS) ---
+// 2. Jalur HTML (tanpa kata "public" karena file index.html ada di luar)
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// --- 3. MENERIMA DATA DARI LAPTOP/PC LOKAL VIA SOCKET.IO ---
+// 3. Socket.IO
 io.on("connection", (socket) => {
-  console.log("Client terhubung:", socket.id);
+  socket.on("kirim_data_kwh", (data) => {
+    io.emit("update_tampilan", data);
+  });
+});
+
+// 4. Listen Server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Web server berjalan di port: ${PORT}`);
+});
 
   // Menerima data dari script di laptop/PC lokal
   socket.on("kirim_data_kwh", (data) => {
