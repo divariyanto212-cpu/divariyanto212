@@ -210,14 +210,11 @@ configuration.on("open", async () => {
   }
 });
 
-// Kode Rute untuk menampilkan halaman utama index.html
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-// Pengaturan Port Dinamis untuk Cloud Hosting
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     log("cyan", `Web server berjalan di port: ${PORT}`);
 });
-
