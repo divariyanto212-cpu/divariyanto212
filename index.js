@@ -210,6 +210,14 @@ configuration.on("open", async () => {
   }
 });
 
-server.listen(3000, '0.0.0.0', () => {
-  log("cyan", "Web server berjalan di: http://192.168.1.248:3000");
+// Kode Rute untuk menampilkan halaman utama index.html
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
 });
+
+// Pengaturan Port Dinamis untuk Cloud Hosting
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    log("cyan", `Web server berjalan di port: ${PORT}`);
+});
+
