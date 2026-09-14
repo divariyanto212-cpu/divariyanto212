@@ -38,13 +38,7 @@ server.listen(PORT, "0.0.0.0", () => {
     // Teruskan ke tampilan browser yang sedang buka website
     io.emit("update_tampilan", data);
   });
-});
 
-// --- 4. LISTEN SERVER HARUS PALING BAWAH ---
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Web server berjalan di port: ${PORT}`);
-});
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 const log = (color, message) => {
