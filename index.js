@@ -38,6 +38,15 @@ const configuration = new SerialPort({
   dataBits: 8,
 });
 
+configuration.on('error', function(err) {
+  log("red", "Hubungan SerialPort Gagal/Tidak Ada: " + err.message);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Ada error tidak tertangkap, server tetap aman:', err);
+});
+
+
 const nrgs = [1, 9];
 const cvms = [2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const areas = {
