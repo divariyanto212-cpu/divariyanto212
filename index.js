@@ -12,32 +12,24 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// 1. Jalur folder aset (CSS/JS)
+// 1. Static folder aset (CSS & JS Client)
 app.use(express.static(path.join(__dirname, "public")));
 
-// 2. Jalur HTML (tanpa kata "public" karena file index.html ada di luar)
+// 2. Route Utama (HTML)
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// 3. Socket.IO
+// 3. Socket.IO (Menerima Data Real-time)
 io.on("connection", (socket) => {
-  socket.on("kirim_data_kwh", (data) => {
-    io.emit("update_tampilan", data);
-  });
-
-
-// 4. Listen Server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Web server berjalan di port: ${PORT}`);
-});
+  console.log("Client terhubung:", socket.id);
 
   // Menerima data dari script di laptop/PC lokal
   socket.on("kirim_data_kwh", (data) => {
     // Teruskan ke tampilan browser yang sedang buka website
-    io.emit("update_tampilan", data);
+    io.emit("update-meter", data);
   });
+});
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -60,8 +52,6 @@ process.on('uncaughtException', (err) => {
   console.error('Ada error tidak tertangkap, server tetap aman:', err.message);
 });
 
-const nrgs =[1, 9];
-const cvms =[2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const areas = {
   1: "Workshop", 2: "Kompressor", 3: "LVMDB", 4: "Genset-on trigger",
   5: "DB pump wtp", 6: "DB cooling tower", 7: "DB Production 1st Floor", 8: "DB Packaging",
@@ -69,17 +59,6 @@ const areas = {
   13: "Warehouse", 14: "DB Production 2st Floor", 15: "DB Filling Area", 16: "DB Horizontal",
   17: "Lighting 2nd Floor", 18: "DB Conveyor", 19: "DB Production 3rd Floor", 20: "Lighting 3rd floor", 
   21: "Tarami"
-};
-
-const registerConfigs = {
-  cvm: { registerKwh: 0xdc, scaleKwh: 1 },
-  nrg: { registerKwh: 0x3c, scaleKwh: 1000 }
-};
-
-const combineDWord = (highWord, lowWord) => {
-  highWord = highWord >>> 0;
-  lowWord = lowWord >>> 0;
-  return highWord * 0x10000 + lowWord;
 };
 
 const latestMeterValues = {};
@@ -108,21 +87,6 @@ const simpanHistoriData = (slaveId, kwhValue, namaMeter) => {
     } catch(e) {
         console.error("Gagal menulis file local storage di cloud");
     }
-};
-
-const readRegistersWithRetry = async (client, register, numberOfRegisters, maxRetries = 3) => {
-  let retries = 0;
-  let lastError = null;
-  while (retries < maxRetries) {
-    try {
-      return await client.readHoldingRegisters(register, numberOfRegisters);
-    } catch (error) {
-      lastError = error;
-      retries++;
-      await delay(1000);
-    }
-  }
-  throw new Error(`Gagal membaca register: ${lastError.message}`);
 };
 
 // API Endpoint untuk mengambil data histori berdasarkan tanggal
@@ -156,73 +120,8 @@ cron.schedule("0 8 * * *", () => {
     log("yellow", "Histori harian jam 08:00 berhasil direkam.");
 });
 
-// --- 2. CEK DETEKSI HOSTING (BYPASS SERIAL PORT DI INTERNET) ---
-const isCloudHosting = process.env.PORT ? true : false;
-
-if (isCloudHosting) {
-    log("cyan", "Menyala di Cloud Hosting (Railway). Fungsi hardware SerialPort COM3 aman di-bypass.");
-    
-    io.on("connection", (socket) => {
-        log("blue", "Klien terhubung ke web cloud.");
-        for (let i = 1; i <= 21; i++) {
-            socket.emit("update-meter", { id: i, name: areas[i], kwh: "0.00", status: "offline" });
-        }
-    });
-
-} else {
-      // --- MODE LOKAL LAPTOP (SERIAL PORT AKTIF NORMAL) ---
-    log("cyan", "Menyala di komputer lokal. Mengaktifkan SerialPort COM3...");
-
-    const configuration = new SerialPort({
-      path: "COM3", baudRate: 9600, parity: "none", stopBits: 1, dataBits: 8,
-    });
-
-    configuration.on('error', function(err) {
-      log("red", "Hubungan SerialPort Lokal Gagal: " + err.message);
-    });
-
-    const getPowerMeterKwh = async (slaveId) => {
-      if (!areas[slaveId]) return;
-      const deviceType = cvms.includes(slaveId) ? 'cvm' : nrgs.includes(slaveId) ? 'nrg' : null;
-      if (!deviceType) return;
-      
-      const config = registerConfigs[deviceType];
-      const client = new modbus.client.RTU(configuration, slaveId, 3000);
-      
-      try {
-        const dataKwh = await readRegistersWithRetry(client, config.registerKwh, 2);
-        const kwh = combineDWord(dataKwh.response.body.values[0], dataKwh.response.body.values[1]) / config.scaleKwh;
-        const kwhFormatted = kwh.toFixed(2);
-        
-        latestMeterValues[slaveId] = { kwh: kwhFormatted, name: areas[slaveId] };
-        log("green", `[${areas[slaveId]}] kWh Berhasil: ${kwhFormatted} kWh`);
-        io.emit("update-meter", { id: slaveId, name: areas[slaveId], kwh: kwhFormatted, status: "success" });
-      } catch (error) {
-        log("red", `[${areas[slaveId]}] Gagal membaca kWh: ${error.message}`);
-        io.emit("update-meter", { id: slaveId, name: areas[slaveId], kwh: "Error", status: "error" });
-      }
-    };
-
-    configuration.setMaxListeners(0);
-
-    async function jalankanPembacaanMeteran() {
-      while (true) {
-        try {
-          for (let i = 1; i <= 21; i++) {
-            await getPowerMeterKwh(i);
-            await delay(1500);
-          }
-          log("yellow", "Satu siklus pembacaan selesai, menunggu...");
-          await delay(5000);
-        } catch (cycleError) {
-          log("red", "Error siklus utama: " + cycleError.message);
-          await delay(5000);
-        }
-      }
-    }
-
-    configuration.on("open", async () => {
-      log("cyan", "Serial port terbuka. Memulai pembacaan kwh...");
-      jalankanPembacaanMeteran();
-    });
-}
+// Server Listen (Wajib ditaruh paling bawah setelah semua route & API)
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, "0.0.0.0", () => {
+  log("cyan", `Web server berjalan sukses di port: ${PORT}`);
+});
