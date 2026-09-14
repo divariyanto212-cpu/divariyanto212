@@ -170,7 +170,7 @@ if (isCloudHosting) {
     });
 
 } else {
-    // --- MODE LOKAL LAPTOP (SERIAL PORT & MODBUS AKTIF NORMAL) ---
+      // --- MODE LOKAL LAPTOP (SERIAL PORT AKTIF NORMAL) ---
     log("cyan", "Menyala di komputer lokal. Mengaktifkan SerialPort COM3...");
 
     const configuration = new SerialPort({
@@ -212,7 +212,7 @@ if (isCloudHosting) {
             await getPowerMeterKwh(i);
             await delay(1500);
           }
-          log("yellow", "Satu siklus pembacaan selesai, menunggu siklus berikutnya...");
+          log("yellow", "Satu siklus pembacaan selesai, menunggu...");
           await delay(5000);
         } catch (cycleError) {
           log("red", "Error siklus utama: " + cycleError.message);
