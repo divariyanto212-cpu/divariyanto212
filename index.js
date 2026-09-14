@@ -25,7 +25,7 @@ io.on("connection", (socket) => {
   socket.on("kirim_data_kwh", (data) => {
     io.emit("update_tampilan", data);
   });
-});
+
 
 // 4. Listen Server
 const PORT = process.env.PORT || 3000;
