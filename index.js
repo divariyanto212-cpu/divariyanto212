@@ -13,7 +13,7 @@ const io = new Server(server, {
 });
 
 // 1. Static folder aset (CSS & JS Client)
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 // 2. Route Utama (HTML)
 app.get("/", (req, res) => {
