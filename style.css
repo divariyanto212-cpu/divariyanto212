@@ -217,3 +217,19 @@ h1 {
     color: #999999 !important;
     font-style: italic;
 }
+
+/* Membuat ikon kalender berwarna putih terang agar kelihatan */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* Merapikan posisi dan tampilan kotak input tanggal */
+#tanggal-input {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    outline: none;
+}
