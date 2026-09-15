@@ -20,13 +20,40 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// 3. Socket.IO (Menerima Data Real-time)
+// 3. Socket.IO (Menerima & Meneruskan Data Real-time)
 io.on("connection", (socket) => {
   console.log("Client terhubung:", socket.id);
 
-  // Menerima data dari script di laptop/PC lokal
+  // A. Saat browser baru dibuka, langsung kirimkan data meteran terakhir yang ada di memori
+  for (let i = 1; i <= 21; i++) {
+    if (latestMeterValues[i]) {
+      socket.emit("update-meter", {
+        id: i,
+        name: latestMeterValues[i].name,
+        kwh: latestMeterValues[i].kwh,
+        status: "success"
+      });
+    } else {
+      socket.emit("update-meter", {
+        id: i,
+        name: areas[i],
+        kwh: "0.00",
+        status: "offline"
+      });
+    }
+  }
+
+  // B. Menerima data dari script laptop/PC lokal
   socket.on("kirim_data_kwh", (data) => {
-    // Teruskan ke tampilan browser yang sedang buka website
+    // Simpan data terbaru ke memori server agar Cron Job jam 08:00 bisa merekamnya
+    if (data && data.id) {
+      latestMeterValues[data.id] = {
+        kwh: data.kwh,
+        name: data.name || areas[data.id]
+      };
+    }
+
+    // Teruskan ke semua tampilan browser yang sedang aktif
     io.emit("update-meter", data);
   });
 });
